@@ -7,9 +7,9 @@ update @ 2020/05/07
 
 2. upload picture for reference
 
-	- bit 1 : high level 0.375*2 us , low level 0.375*1 us
+	- bit 1 : high level 0.375x2 us , low level 0.375x1 us
 
-	- bit 0 : high level 0.375*1 us , low level 0.375*2 us
+	- bit 0 : high level 0.375x1 us , low level 0.375x2 us
 
 ![image](https://github.com/released/MS51_RGBLED_GPIO/blob/master/RGB_1LED_0x00_0x01.jpg)
 
