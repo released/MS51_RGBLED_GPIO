@@ -31,11 +31,14 @@ bit BIT_TMP;
 #define SYS_CLOCK 								(24000000ul)
 #endif
 
-//#define ENABLE_EXTRA_DEMO
+#define ENABLE_EXTRA_DEMO
 
 //#define ENABLE_UART0_LOG
 //#define ENABLE_GPIO_DEMO
 //#define ENABLE_TIMER
+
+//#define ENABLE_BIT_900_300
+#define ENABLE_BIT_750_375
 
 #define USE_P00
 //#define USE_P01
@@ -986,7 +989,41 @@ void write_DATAFLASH_BYTE(UINT16 u16_addr,UINT8 u8_data)
 }  
 
 void GPIO_WS2812C_DATA1(void)
-{				
+{	
+	// high : 900ns , low : 300ns
+	#if defined (ENABLE_BIT_900_300)	
+
+//P13 = 1;
+	
+	#if defined (USE_P00)
+	P00 = 1;	
+	#elif defined (USE_P01)
+	P01 = 1;
+	#elif defined (USE_P12)
+	P12 = 1;
+	#endif
+
+	nop;nop;nop;nop;
+	nop;nop;nop;nop;
+	nop;nop;nop;nop;
+	nop;nop;nop;nop;
+	nop;nop;
+	
+	#if defined (USE_P00)
+	P00 = 0;	
+	#elif defined (USE_P01)
+	P01 = 0;	
+	#elif defined (USE_P12)
+	P12 = 0;
+	#endif
+
+	nop;nop;nop;nop;	
+
+//P13 = 0;
+
+	// high : 375*2 , low : 375
+	#elif defined (ENABLE_BIT_750_375)	
+
 	#if defined (USE_P00)
 	P00 = 1;	
 	#elif defined (USE_P01)
@@ -1012,10 +1049,45 @@ void GPIO_WS2812C_DATA1(void)
 	P12 = 0;
 	#endif
 	nop;nop;nop;nop;nop;
+	#endif
 }
 
 void GPIO_WS2812C_DATA0(void)
-{	
+{
+	// high : 300ns , low : 900ns
+	#if defined (ENABLE_BIT_900_300)		
+		
+//P14 = 1;
+	
+	#if defined (USE_P00)
+	P00 = 1;	
+	#elif defined (USE_P01)
+	P01 = 1;
+	#elif defined (USE_P12)
+	P12 = 1;
+	#endif
+
+	nop;nop;nop;nop;
+
+	#if defined (USE_P00)
+	P00 = 0;	
+	#elif defined (USE_P01)
+	P01 = 0;	
+	#elif defined (USE_P12)
+	P12 = 0;
+	#endif
+
+	nop;nop;nop;nop;
+	nop;nop;nop;nop;
+	nop;nop;nop;nop;
+	nop;nop;nop;nop;
+	nop;nop;
+
+//P14 = 0;
+
+	// high : 375 , low : 375*2
+	#elif defined (ENABLE_BIT_750_375)
+	
 	#if defined (USE_P00)
 	P00 = 1;	
 	#elif defined (USE_P01)
@@ -1042,7 +1114,8 @@ void GPIO_WS2812C_DATA0(void)
 	#elif defined (USE_P12)
 	P12 = 0;
 	#endif
-	nop;nop;nop;nop;nop;	
+	nop;nop;nop;nop;nop;
+	#endif
 }
 
 void GPIO_WS2812C_Send_1Byte(uint8_t Data)
@@ -1080,16 +1153,20 @@ void GPIO_WS2812C_Send_1bit(uint8_t Data)
 }
 
 void GPIO_WS2812C_Initial(void)
-{      
+{     
 	#if defined (USE_P00)
+//	set_P0SR_0;	//PnSR ¡V Port n Slew Rate  : set P0.n high-speed output slew rate.	
 	P00_PUSHPULL_MODE;														// P00 (MOSI) Quasi mode	
+
 	#elif defined (USE_P01)
-	P01_PUSHPULL_MODE;		
+//	set_P0SR_1;	//PnSR ¡V Port n Slew Rate  : set P0.n high-speed output slew rate.	
+	P01_PUSHPULL_MODE;	
+
 	#elif defined (USE_P12)
+//	set_P1SR_2;	//PnSR ¡V Port n Slew Rate  : set P0.n high-speed output slew rate.		
 	P12_PUSHPULL_MODE;	
+
 	#endif
-
-
 }
 
 /*
@@ -1770,9 +1847,9 @@ void SimpleTest(void)
 //	delay_ms(1);
 
 
-//	GPIO_WS2812C_DATA1();;
+//	GPIO_WS2812C_DATA1();
 //	delay_ms(1);
-//	GPIO_WS2812C_DATA0();;
+//	GPIO_WS2812C_DATA0();
 //	delay_ms(1);	
 //	GPIO_WS2812C_Send_1bit(0);
 //	GPIO_WS2812C_Send_1bit(0);
@@ -2118,7 +2195,7 @@ void main (void)
     while(1)
     {		
 		StateMachine();
-//		SimpleTest();		
+//		SimpleTest();
     }
 }
 
