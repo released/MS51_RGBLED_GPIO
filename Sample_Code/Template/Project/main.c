@@ -34,17 +34,25 @@ bit BIT_TMP;
 #define ENABLE_EXTRA_DEMO
 
 //#define ENABLE_UART0_LOG
-//#define ENABLE_GPIO_DEMO
+#define ENABLE_GPIO_DEMO
 //#define ENABLE_TIMER
 
 //#define ENABLE_BIT_900_300
 #define ENABLE_BIT_750_375
 
-#define USE_P00
+//#define USE_P00
 //#define USE_P01
-//#define USE_P12
+#define USE_P12
 
-#define LED_NUM 								(18)	//(18)
+#if defined (USE_P00)
+#define set_LEDGPIO(x)			(P00 = x)
+#elif defined (USE_P01)
+#define set_LEDGPIO(x)			(P01 = x)
+#elif defined (USE_P12)
+#define set_LEDGPIO(x)			(P12 = x)
+#endif
+
+#define LED_NUM 								(6)	//(18)
 #define LED_DATA_LEN 							(LED_NUM * 3)
 
 #define MS_LED_LATCH							(450)	//(450)
@@ -110,7 +118,7 @@ unsigned char uart0_receive_data;
 //TIMER
 uint8_t u8TH0_Tmp = 0;
 uint8_t u8TL0_Tmp = 0;
-uint8_t DataBuffer[LED_DATA_LEN] = {0};
+volatile uint8_t xdata DataBuffer[LED_DATA_LEN] = {0};
 uint8_t DemoState = 0;
 
 uint16_t Coloridx = 0;
@@ -995,13 +1003,7 @@ void GPIO_WS2812C_DATA1(void)
 
 //P13 = 1;
 	
-	#if defined (USE_P00)
-	P00 = 1;	
-	#elif defined (USE_P01)
-	P01 = 1;
-	#elif defined (USE_P12)
-	P12 = 1;
-	#endif
+	set_LEDGPIO(1);
 
 	nop;nop;nop;nop;
 	nop;nop;nop;nop;
@@ -1009,13 +1011,7 @@ void GPIO_WS2812C_DATA1(void)
 	nop;nop;nop;nop;
 	nop;nop;
 	
-	#if defined (USE_P00)
-	P00 = 0;	
-	#elif defined (USE_P01)
-	P01 = 0;	
-	#elif defined (USE_P12)
-	P12 = 0;
-	#endif
+	set_LEDGPIO(0);
 
 	nop;nop;nop;nop;	
 
@@ -1024,30 +1020,12 @@ void GPIO_WS2812C_DATA1(void)
 	// high : 375*2 , low : 375
 	#elif defined (ENABLE_BIT_750_375)	
 
-	#if defined (USE_P00)
-	P00 = 1;	
-	#elif defined (USE_P01)
-	P01 = 1;
-	#elif defined (USE_P12)
-	P12 = 1;
-	#endif
+	set_LEDGPIO(1);
 	nop;nop;nop;nop;nop;
-	#if defined (USE_P00)
-	P00 = 1;	
-	#elif defined (USE_P01)
-	P01 = 1;	
-	#elif defined (USE_P12)
-	P12 = 1;
-	#endif
+	set_LEDGPIO(1);
 	nop;nop;nop;nop;nop;
 	
-	#if defined (USE_P00)
-	P00 = 0;	
-	#elif defined (USE_P01)
-	P01 = 0;	
-	#elif defined (USE_P12)
-	P12 = 0;
-	#endif
+	set_LEDGPIO(0);
 	nop;nop;nop;nop;nop;
 	#endif
 }
@@ -1059,23 +1037,11 @@ void GPIO_WS2812C_DATA0(void)
 		
 //P14 = 1;
 	
-	#if defined (USE_P00)
-	P00 = 1;	
-	#elif defined (USE_P01)
-	P01 = 1;
-	#elif defined (USE_P12)
-	P12 = 1;
-	#endif
+	set_LEDGPIO(1);
 
 	nop;nop;nop;nop;
 
-	#if defined (USE_P00)
-	P00 = 0;	
-	#elif defined (USE_P01)
-	P01 = 0;	
-	#elif defined (USE_P12)
-	P12 = 0;
-	#endif
+	set_LEDGPIO(0);
 
 	nop;nop;nop;nop;
 	nop;nop;nop;nop;
@@ -1088,32 +1054,14 @@ void GPIO_WS2812C_DATA0(void)
 	// high : 375 , low : 375*2
 	#elif defined (ENABLE_BIT_750_375)
 	
-	#if defined (USE_P00)
-	P00 = 1;	
-	#elif defined (USE_P01)
-	P01 = 1;	
-	#elif defined (USE_P12)
-	P12 = 1;
-	#endif
+	set_LEDGPIO(1);
 	nop;nop;nop;nop;nop;
 			
-	#if defined (USE_P00)
-	P00 = 0;	
-	#elif defined (USE_P01)
-	P01 = 0;	
-	#elif defined (USE_P12)
-	P12 = 0;
-	#endif
+	set_LEDGPIO(0);
 	nop;nop;nop;nop;nop;
 
 	
-	#if defined (USE_P00)
-	P00 = 0;	
-	#elif defined (USE_P01)
-	P01 = 0;	
-	#elif defined (USE_P12)
-	P12 = 0;
-	#endif
+	set_LEDGPIO(0);
 	nop;nop;nop;nop;nop;
 	#endif
 }
@@ -1185,14 +1133,7 @@ void setLED_ResetPulse(uint8_t pos)	//target : 280us
 {
 	uint16_t i = 0 ;
 
-	#if defined (USE_P00)
-	P00 = 0;	
-	#elif defined (USE_P01)
-	P01 = 0;	
-	#elif defined (USE_P12)
-	P12 = 0;
-	#endif
-
+	set_LEDGPIO(0);
 	
 	if (pos == WS_RES_POS_FRONT)	//57 us
 	{
@@ -1211,13 +1152,15 @@ void setLED_Display(uint16_t DataCount)
 	uint8_t i = 0;
 	
 	setLED_ResetPulse(WS_RES_POS_FRONT);
-	
+
+	clr_EA;
 	for(i=0;i<(LED_NUM);i++)
 	{
 		GPIO_WS2812C_Send_1Byte(DataBuffer[i*3]);
 		GPIO_WS2812C_Send_1Byte(DataBuffer[i*3+1]);
 		GPIO_WS2812C_Send_1Byte(DataBuffer[i*3+2]);		
 	}
+	set_EA;
 	
 	setLED_ResetPulse(WS_RES_POS_BACK);
 }
@@ -1889,6 +1832,12 @@ void SimpleTest(void)
 //	delay_ms(300);	
 //	setLED_ColorWipe(0x00,0x00,0x00);
 //	delay_ms(300);	
+
+
+	P13 = 1;
+	setLED_ColorWipe(255,0,0);
+	P13 = 0;
+
 		
 }
 
